@@ -1,4 +1,4 @@
-const API_KEY = "PASTE_YOUR_GEMINI_KEY_HERE";
+const API_KEY = "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";
 
 async function sendMessage() {
     let input = document.getElementById("userInput");
