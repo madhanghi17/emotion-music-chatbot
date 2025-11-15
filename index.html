@@ -1,66 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Mood Based AI Chatbot</title>
+<title>AI Mood Chatbot</title>
 <style>
-body { font-family: Arial; background:#222; color:white; text-align:center;}
-#chat{height:350px;overflow-y:auto;border:2px solid #555;padding:10px;width:70%;margin:auto;background:#111;}
+body{background:#111;color:white;font-family:Arial;text-align:center}
+#chat{height:400px;width:70%;margin:auto;border:2px solid #555;padding:10px;overflow-y:auto;background:#000}
 .msg{padding:8px;margin:6px;border-radius:8px;width:80%}
-.user{background:#0a84ff; margin-left:20%}
-.bot{background:#444; margin-right:20%}
-input{width:70%;padding:10px;font-size:18px;border-radius:6px;border:none;margin-top:10px}
-button{padding:10px 16px;font-size:18px;margin:10px;border:none;border-radius:6px;background:#0a84ff;color:white}
+.user{background:#007aff;margin-left:20%}
+.bot{background:#333;margin-right:20%}
+input{width:70%;padding:10px;font-size:18px;border-radius:6px;margin-top:10px}
+button{padding:10px 15px;font-size:18px;border-radius:6px;background:#007aff;color:white;border:none}
 </style>
 </head>
 
 <body>
 
-<h1>🎧 Mood Based Chatbot</h1>
+<h1>🎧 Mood Based Music & Quote Bot</h1>
 <div id="chat"></div>
 
-<input id="input" placeholder="How do you feel now?">
+<input id="msg" placeholder="Tell your mood...">
 <button onclick="send()">Send</button>
 
 <script>
+const API_KEY = "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";
+
 async function send(){
-    let text=document.getElementById("input").value;
-    if(!text.trim()) return;
-
-    add(text,"user");
-    document.getElementById("input").value="";
-
-    let reply = await ai(text);
-    add(reply,"bot");
+ let text=document.getElementById("msg").value;
+ if(!text.trim()) return;
+ add(text,"user");
+ document.getElementById("msg").value="";
+ let reply=await askAI(text);
+ add(reply,"bot");
 }
 
-async function ai(msg){
-
- let data = {
-  inputs: `USER FEELS: ${msg}\nRespond in format:\n🎵 Song: <song>\n✨ Quote: <quote>`
- };
-
- try{
-   let r = await fetch("https://api-inference.huggingface.co/models/google/flan-t5-large",{
-     method:"POST",
-     headers:{ "Content-Type":"application/json" },
-     body:JSON.stringify(data)
-   });
-   let j = await r.json();
-   return j[0].generated_text ?? "⚠ Try again";
- }
- catch(e){
-   return "⚠ Model busy";
- }
+async function askAI(q){
+ let r=await fetch("https://openrouter.ai/api/v1/chat/completions",{
+  method:"POST",
+  headers:{
+   "Content-Type":"application/json",
+   "Authorization":"Bearer "+API_KEY
+  },
+  body:JSON.stringify({
+   model:"google/gemini-pro-1.5-mini",
+   messages:[{role:"system",content:"You recommend songs & quotes based on mood. Format:\n🎵 Song: <>\n✨ Quote: <>"},
+             {role:"user",content:q}]
+  })
+ });
+ let j=await r.json();
+ return j.choices?.[0]?.message?.content ?? "⚠ Error";
 }
 
 function add(t,type){
- let box=document.createElement("div");
- box.className="msg "+type;
- box.innerText=t;
- document.getElementById("chat").appendChild(box);
- document.getElementById("chat").scrollTop=9999999;
+ let d=document.createElement("div");
+ d.className="msg "+type;
+ d.innerText=t;
+ chat.appendChild(d);
+ chat.scrollTop=999999;
 }
 </script>
+
 </body>
 </html>
+
